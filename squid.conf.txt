@@ -1,0 +1,62 @@
+http_port 192.168.46.1:3128
+http_port 192.168.46.1:3129 intercept
+
+cache_mem 256 MB 
+cache_swap_low 90
+cache_swap_high 95
+
+access_log /var/log/squid/access.log squid
+cache_log /var/log/squid/cache.log
+cache_store_log /var/log/squid/store.log
+
+mime_table /usr/share/squid/mime.conf
+
+memory_pools off
+
+diskd_program /usr/lib/squid/diskd
+unlinkd_program /usr/lib/squid/unlinkd
+quick_abort_max 16 KB
+quick_abort_pct 95
+quick_abort_min 16 KB
+request_header_max_size 20 KB
+reply_header_max_size 20 KB
+request_body_max_size 0 KB
+
+acl RedeFatec src 192.168.46.0/24 
+# Representa a sua rede e respectiva mascara de sub-rede
+
+acl SSL_ports port 443 563
+acl Safe_ports port 80 # http
+acl Safe_ports port 21 # ftp
+acl Safe_ports port 443 563 1863 # https
+acl Safe_ports port 70 # gopher
+acl Safe_ports port 210 # wais
+acl Safe_ports port 1025-65535 # unregistered ports
+acl Safe_ports port 280 # http-mgmt
+acl Safe_ports port 488 # gss-http
+acl Safe_ports port 591 # filemaker
+acl Safe_ports port 777 # multiling http
+acl CONNECT method CONNECT
+
+# IP Negado
+#acl ip_negado src "/etc/squid/ip_negado"
+#http_access deny ip_negado
+
+# Regras de bloqueio de site (por palavras)
+#acl palavra url_regex -i "/etc/squid/palavra_negada"
+#http_access deny palavra
+
+http_access allow manager localhost
+http_access deny manager
+http_access deny !Safe_ports
+http_access deny CONNECT !SSL_ports
+http_access allow RedeFatec
+
+cache_mgr webmaster
+mail_program mail
+cache_effective_user proxy
+cache_effective_group proxy
+httpd_suppress_version_string off
+visible_hostname Fatec.org
+
+error_directory /usr/share/squid/errors/Portuguese/
